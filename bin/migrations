@@ -3,8 +3,6 @@
 
 require_once __DIR__ . '/../bootstrap.php';
 
-use PHPhademic\Lib\Db;
-use PHPhademic\Lib\Debug;
 use PHPhademic\Lib\Env;
 use PHPhademic\Lib\Shell;
 
@@ -80,11 +78,6 @@ class Migration extends Shell
     ) {
         parent::__construct($argv, $options);
 
-
-        // if ($this->hasOption(self::OPTION_TEST[self::OPTION])) {
-        //     var_dump($this->getMigrationParts("2022-12-01-000001_profiles.sql", self::SEPARATOR_DOWN));
-        // }
-
         if ($this->hasOption(self::OPTION_CREATE[self::OPTION]) || $this->hasOption(self::OPTION_CREATE[self::LONG_OPTION])) {
             $this->create();
         } elseif ($this->hasOption(self::OPTION_LIST[self::OPTION]) || $this->hasOption(self::OPTION_LIST[self::LONG_OPTION])) {
@@ -120,6 +113,9 @@ class Migration extends Shell
         }
     }
 
+    /**
+     * Asks the user to create a migration
+     */
     public function create()
     {
         $typeNumber = $this->ask(
@@ -141,6 +137,9 @@ class Migration extends Shell
         echo "Migration created: " . $migration . PHP_EOL;
     }
 
+    /**
+     * Rollback to a specific migration
+     */
     public function rollback(string $migrationName = null): void
     {
         $migrations = $this->getMigrations();
@@ -178,6 +177,9 @@ class Migration extends Shell
         $this->runMigration($migrationContent);
     }
 
+    /**
+     * Creates a migration file
+     */
     public function createMigration(string $name, string $type): string
     {
         $migration = $this->getMigrationName($name, $type);
@@ -299,6 +301,9 @@ class Migration extends Shell
         ];
     }
 
+    /**
+     * Split a migration into "up" and "down" parts
+     */
     public function getMigrationParts(string $migrationFilename, string $part = null): string
     {
         $content = file_get_contents(Env::get('MIGRATIONS_DIR', CONFIG_DIR . '/migrations') . '/' . $migrationFilename);
