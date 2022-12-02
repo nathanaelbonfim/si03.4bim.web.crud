@@ -1,8 +1,445 @@
 #!/usr/bin/php
 <?php
 
+require_once __DIR__ . '/../bootstrap.php';
+
+use PHPhademic\Lib\Db;
+use PHPhademic\Lib\Debug;
+use PHPhademic\Lib\Env;
+use PHPhademic\Lib\Shell;
 
 class Migration extends Shell
 {
+    public const SEPARATOR = '-- ::';
+    /**
+     *  Separator used to separate the migration from the rollback
+     */
+    public const SEPARATOR_UP = '-- ::Up';
+    public const SEPARATOR_DOWN = '-- ::Down';
+    public const SEPARATOR_CHANGE = '-- ::Change';
+
+    public const TYPE_ROLLBACKABLE = 'rollbackable';
+    public const TYPE_CHANGEABLE = 'changeable';
+
+    public const TYPES = [
+        self::TYPE_ROLLBACKABLE => 'Migration with a rollback possibility',
+        self::TYPE_CHANGEABLE => 'Migration without a rollback possibility',
+    ];
+
+    // The available options for the command
+    // -------------------------------------
+
+    public const OPTION_TEST = [
+        self::OPTION => 't',
+        self::LONG_OPTION => 'test',
+        self::DESCRIPTION => 'Test the migration',
+        self::REQUIRED => false
+    ];
+
+    public const OPTION_CREATE = [
+        self::OPTION => 'c',
+        self::LONG_OPTION => 'create',
+        self::DESCRIPTION => 'Create a migration',
+        self::REQUIRED => false
+    ];
+
+    public const OPTION_LIST = [
+        self::OPTION => 'l',
+        self::LONG_OPTION => 'list',
+        self::DESCRIPTION => 'List the migrations',
+        self::REQUIRED => false
+    ];
+
+    public const OPTION_MIGRATE = [
+        self::OPTION => 'm',
+        self::LONG_OPTION => 'migrate',
+        self::DESCRIPTION => 'Migrate the database',
+        self::REQUIRED => false
+    ];
+
+    public const OPTION_ROLLBACK = [
+        self::OPTION => 'r',
+        self::LONG_OPTION => 'rollback',
+        self::DESCRIPTION => 'Rollback a migration',
+        self::REQUIRED => false
+    ];
+
+    public const OPTIONS = [
+        self::DEFAULT_HELP_OPTION,
+        self::OPTION_CREATE,
+        self::OPTION_LIST,
+        self::OPTION_MIGRATE,
+        self::OPTION_ROLLBACK,
+    ];
+
+
+
+    public function __construct(
+        array $argv,
+        array $options = self::OPTIONS
+    ) {
+        parent::__construct($argv, $options);
+
+
+        // if ($this->hasOption(self::OPTION_TEST[self::OPTION])) {
+        //     var_dump($this->getMigrationParts("2022-12-01-000001_profiles.sql", self::SEPARATOR_DOWN));
+        // }
+
+        if ($this->hasOption(self::OPTION_CREATE[self::OPTION]) || $this->hasOption(self::OPTION_CREATE[self::LONG_OPTION])) {
+            $this->create();
+        } elseif ($this->hasOption(self::OPTION_LIST[self::OPTION]) || $this->hasOption(self::OPTION_LIST[self::LONG_OPTION])) {
+            $this->list();
+        } elseif ($this->hasOption(self::OPTION_MIGRATE[self::OPTION]) || $this->hasOption(self::OPTION_MIGRATE[self::LONG_OPTION])) {
+            $this->migrate(
+                $this->getOption(self::OPTION_MIGRATE[self::OPTION], self::OPTION_MIGRATE[self::LONG_OPTION])
+            );
+        } elseif ($this->hasOption(self::OPTION_ROLLBACK[self::OPTION]) || $this->hasOption(self::OPTION_ROLLBACK[self::LONG_OPTION])) {
+            $this->rollback(
+                $this->getOption(self::OPTION_ROLLBACK[self::OPTION], self::OPTION_ROLLBACK[self::LONG_OPTION])
+            );
+        } else {
+            $this->help();
+        }
+    }
+
+    /**
+     * List available migrations
+     */
+    public function list(): void
+    {
+        $migrations = $this->getMigrations();
+
+        if (empty($migrations)) {
+            echo "No migrations found" . PHP_EOL;
+            return;
+        }
+
+        echo "Available migrations:" . PHP_EOL;
+        foreach ($migrations as $migration) {
+            echo " - " . $migration . PHP_EOL;
+        }
+    }
+
+    public function create()
+    {
+        $typeNumber = $this->ask(
+            "What type of migration do you want to create?\n" .
+                "1. " . self::TYPES[self::TYPE_ROLLBACKABLE] . "\n" .
+                "2. " . self::TYPES[self::TYPE_CHANGEABLE] . "\n" .
+                "Please enter the number of your choice: ",
+            true,
+            '1',
+            ['1', '2'],
+        );
+
+        $type = $typeNumber === '1' ? self::TYPE_ROLLBACKABLE : self::TYPE_CHANGEABLE;
+
+        $name = $this->ask('What is the name of the migration?');
+
+        $migration = $this->createMigration($name, $type);
+
+        echo "Migration created: " . $migration . PHP_EOL;
+    }
+
+    public function rollback(string $migrationName = null): void
+    {
+        $migrations = $this->getMigrations();
+
+        if (empty($migrations)) {
+            echo "No migrations found" . PHP_EOL;
+            return;
+        }
+
+        if ($migrationName === null || $migrationName === '') {
+            $migrationName = $this->ask(
+                "Which migration do you want to rollback?\n" .
+                    "Please enter the name of the migration: ",
+                true,
+                null,
+                $migrations,
+            );
+        }
+
+        $migration = $this->getMigrationContent($migrationName, self::SEPARATOR_DOWN);
+
+        if ($migration === null) {
+            echo "Migration not found" . PHP_EOL;
+            return;
+        }
+
+        $migrationMeta = $this->getMigrationMeta($migrationName);
+        $migrationContent = $this->getMigrationParts($migration, self::SEPARATOR_DOWN);
+
+        if ($migrationMeta['type'] !== self::TYPE_ROLLBACKABLE) {
+            echo "Migration not rollbackable" . PHP_EOL;
+            return;
+        }
+
+        $this->runMigration($migrationContent);
+    }
+
+    public function createMigration(string $name, string $type): string
+    {
+        $migration = $this->getMigrationName($name, $type);
+        $migrationFile = $this->getMigrationFile($migration);
+
+        $content = $this->getMigrationTemplate($type);
+
+        file_put_contents($migrationFile, $content);
+
+        return $migration;
+    }
+
+    /**
+     * Generate a name for the migration file
+     */
+    public function getMigrationName(string $name, string $type): string
+    {
+        $date = date('Y-m-d-His');
+        $name = str_replace(' ', '_', $name);
+        $name = strtolower($name);
+
+        return $date . '_' . $name . '_' . $type;
+    }
+
+    /**
+     * The path to the migration file
+     */
+    public function getMigrationFile(string $migration): string
+    {
+        return Env::get('MIGRATIONS_DIR') . '/' . $migration . '.sql';
+    }
+
+    public function getMigrationTemplate(string $type): string
+    {
+        $separatorUp = self::SEPARATOR_UP;
+        $separatorDown = self::SEPARATOR_DOWN;
+        $separatorChange = self::SEPARATOR_CHANGE;
+
+        if ($type === self::TYPE_ROLLBACKABLE) {
+            return <<<EOT
+                $separatorUp
+                -- Your SQL code here
+
+                $separatorDown
+                -- Your SQL code here
+            EOT;
+        }
+
+        return <<<EOT
+            $separatorChange
+            -- Your SQL code here
+        EOT;
+    }
+
+    /**
+     * List available migrations
+     */
+    public function getMigrations(): array
+    {
+        $migrations = [];
+
+        $migrationsDir = Env::get('MIGRATIONS_DIR', CONFIG_DIR . '/migrations');
+
+        $files = scandir($migrationsDir);
+
+        foreach ($files as $file) {
+            if (substr($file, -4) === '.sql') {
+                $migrations[] = $file;
+            }
+        }
+
+        return $migrations;
+    }
+
+    /**
+     * Gets the migration timestamp in the format yyyy-mm-dd
+     */
+    public function getMigrationTimestamp(string $migrationFilename): string
+    {
+        $migrationTimestamp = substr($migrationFilename, 0, 10);
+
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $migrationTimestamp)) {
+            throw new Exception("Invalid migration filename: " . $migrationFilename);
+        }
+
+        return $migrationTimestamp;
+    }
+
+    /**
+     * Get the migration type
+     */
+    public function getMigrationType(string $migration): string
+    {
+        $content = file_get_contents(Env::get('MIGRATIONS_DIR', CONFIG_DIR . '/migrations') . '/' . $migration);
+
+        if (strpos($content, self::SEPARATOR_DOWN) !== false) {
+            return self::TYPE_ROLLBACKABLE;
+        }
+
+        if (strpos($content, self::SEPARATOR_CHANGE) !== false) {
+            return self::TYPE_CHANGEABLE;
+        }
+
+        return self::TYPE_CHANGEABLE;
+    }
+
+    /**
+     * Gets information about the migration
+     */
+    public function getMigrationMeta(string $migrationFilename)
+    {
+        $migrationTimestamp = $this->getMigrationTimestamp($migrationFilename);
+
+        $migrationType = $this->getMigrationType($migrationFilename);
+
+        return [
+            'timestamp' => $migrationTimestamp,
+            'type' => $migrationType,
+        ];
+    }
+
+    public function getMigrationParts(string $migrationFilename, string $part = null): string
+    {
+        $content = file_get_contents(Env::get('MIGRATIONS_DIR', CONFIG_DIR . '/migrations') . '/' . $migrationFilename);
+        
+        // Split the migration parts on every line that have separator at the start of the line
+        $parts = preg_split('/^-- .+$/m', $content, PREG_SPLIT_OFFSET_CAPTURE);
+        
+        // Remove the first part, which is the header
+        $parts = array_slice($parts, 1);
+        
+        switch ($part) {
+            case self::SEPARATOR_UP:
+                return $parts[0];
+            case self::SEPARATOR_DOWN:
+                return $parts[1];
+
+            default:
+                return $parts;
+        }
+    }
+
+    /**
+     * Get the migration SQL code
+     * 
+     * @param string $migrationFilename The migration filename
+     * @param string $part The part of the migration to get. Must be one of the SEPARATOR_* constants
+     */
+    function getMigrationContent(string $migrationFilename, string $migrationType, string $migrationPart = self::SEPARATOR_UP): string
+    {
+        $migrationsDir = Env::get('MIGRATIONS_DIR', CONFIG_DIR . '/migrations');
+        $migrationFile = $migrationsDir . '/' . $migrationFilename;
+
+        if (!file_exists($migrationFile)) {
+            echo "Migration file not found" . PHP_EOL;
+            return '';
+        }
+
+        switch ($migrationType) {
+            case self::TYPE_ROLLBACKABLE:
+                $migrationContent = $this->getMigrationParts($migrationFile, $migrationPart);
+                break;
+            
+            case self::TYPE_CHANGEABLE:
+            default:
+                $migrationContent = file_get_contents($migrationFile);
+                break;
+        }
+
+        return $migrationContent;
+    }
+
+    /**
+     * Runs a specific migration
+     */
+    public function migrate(string $migration = null): void
+    {
+        if ($migration === null || $migration === '') {
+            // Confirmation message
+            $response = $this->ask('Are you sure you want to migrate all migrations? (y/n)', false, 'n');
+
+            if ($response !== 'y') {
+                echo "Migration cancelled" . PHP_EOL;
+                return;
+            }
+
+
+            $this->migrateDatabase($this->getMigrations());
+            return;
+        }
+
+        $migrationMeta = $this->getMigrationMeta($migration);
+        $migrationContent = $this->getMigrationContent($migration, self::SEPARATOR_UP);
+
+        $this->runMigration($migrationContent);
+    }
+
+    /**
+     * Runs a specific rollback
+     */
+    public function rollbackMigration(string $migration = null): void
+    {
+        $migrationMeta = $this->getMigrationMeta($migration);
+        $migrationContent = $this->getMigrationContent($migration, self::SEPARATOR_DOWN);
+
+        $this->runMigration($migrationContent);
+    }
+
+    /**
+     * Runs a specific migration in a transaction
+     */
+    public function runMigration(string $migration, bool $enableTransaction = true): void
+    {
+        $db = $this->getDb();
+
+        if ($enableTransaction)
+            $db->beginTransaction();
+
+        try {
+            $db->exec($migration);
+
+            if ($enableTransaction)
+                $db->commit();
+        } catch (\PDOException $e) {
+            if ($enableTransaction)
+                $db->rollBack();
+
+            echo "Migration failed" . PHP_EOL;
+            echo $e->getMessage() . PHP_EOL;
+            return;
+        }
+
+        echo "Migration successful" . PHP_EOL;
+    }
+
+    /**
+     * Gets the database connection
+     */
+    public function getDb()
+    {
+        $db = new \PDO(
+            Env::get('DB_DSN'),
+            Env::get('DB_USER'),
+            Env::get('DB_PASSWORD')
+        );
+
+        $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+        return $db;
+    }
+
+    /**
+     * Runs all migrations
+     */
+    public function migrateDatabase(array $migrations): void
+    {
+        foreach ($migrations as $migration) {
+            $this->runMigration($migration);
+        }
+    }
+
 
 }
+
+$migration = new Migration($argv);
