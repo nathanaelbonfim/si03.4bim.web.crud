@@ -1,0 +1,33 @@
+#!/usr/bin/php
+<?php
+
+require_once __DIR__ . '/../bootstrap.php';
+
+use PHPhademic\Lib\Shell;
+
+class Sample extends Shell {
+    public function __construct(array $argv) {
+        parent::__construct($argv, [
+            [
+                self::OPTION => 'o',
+                self::LONG_OPTION => 'option',
+                self::DESCRIPTION => 'An option',
+                self::REQUIRED => true
+            ]
+        ]);
+
+        if ($this->hasOption('o') || $this->hasOption('option')) {
+            $this->option();
+        }
+    }
+
+    public function option() {
+        $clapEmoji = "\u{1F44F}";
+        echo 'We have an option!' . $clapEmoji . PHP_EOL;
+
+        echo 'The value of the option is: ' . $this->getOption('o') . PHP_EOL;
+    }
+}
+
+// Call the class and initialize it
+$sample = new Sample($argv);
