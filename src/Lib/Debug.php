@@ -12,11 +12,7 @@ class Debug
      */
     public static function dump($var): void
     {
-        echo '<pre>';
         var_dump($var);
-        echo '<hr/>';
-        debug_print_backtrace(0);
-        echo '</pre>';
     }
 
     /**
@@ -33,6 +29,10 @@ class Debug
      */
     public static function debug($var): void
     {
+        echo '<pre>';
         self::dump($var);
+        echo '<hr/>';
+        debug_print_backtrace(0);
+        echo '</pre>';
     }
 }
