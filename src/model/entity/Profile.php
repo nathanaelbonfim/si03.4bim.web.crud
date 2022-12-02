@@ -1,6 +1,7 @@
 <?php
 
-class Profile{
+class Profile
+{
     public int $id;
     public int $userId;
     public string $name;
