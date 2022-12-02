@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Revisar</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/phosphor-icons"></script>
+    </head>
+    <body class="overflow-x-hidden">
+        <div class="min-w-screen min-h-screen bg-zinc-100 flex flex-row">
+            <header class="">
+                <aside class="bg-slate-600 p-4 h-screen sticky top-0">
+                    <div class="text-white font-bold uppercase text-2xl pb-6 w-full text-center pr-2">Artesão</div>
+                    <nav class="w-64">
+                        <ul class="text-white flex flex-col gap-4">
+                            <li class="flex">
+                                <a href="/arts.html" class="border-sky-500 border-l-8 p-4 hover:bg-slate-700 bg-slate-700 w-full transition rounded flex gap-4">
+                                    <i class="ph-image mt-[.1rem]"></i>
+                                    Artes
+                                </a>
+                            </li>
+                            <li class="flex">
+                                <a href="/clients.html" class="p-4 hover:bg-slate-700 hover:border-sky-500 hover:border-l-8 w-full transition rounded flex gap-4">
+                                    <i class="ph-user mt-[.1rem]"></i>
+                                    Clientes
+                                </a>
+                            </li>
+                            <li class="flex">
+                                <a href="#" class="p-4 hover:bg-slate-700 hover:border-sky-500 hover:border-l-8 w-full transition rounded flex gap-4">
+                                    <i class="ph-wrench mt-[.1rem]"></i>
+                                    Configurações
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </aside>
+            </header>
+            <main class="p-4 w-full">
+                <div class="font-medium mb-6 py-4 flex sticky top-0 left-0 bg-slate-100 shadow-md -mx-4 px-4 w-full">
+                    <h2 class="text-3xl">Arte XYZ #123</h2>
+                    <a href="/new_art.html" class="bg-orange-500 rounded hover:bg-orange-600 flex items-center justify-center gap-2 px-4 ml-auto text-white">
+                        <i class="ph-pencil-bold"></i>
+                        Editar
+                    </a>
+                </div>
+                <div class="flex w-full gap-4">
+                    <div class="bg-white p-2 rounded shadow-sm border w-3/6">
+                        <a href="#">
+                            <img src="https://via.placeholder.com/400.png/09f/fff" class="w-full">
+                        </a>
+
+                        <div class="card-footer p-2 my-2 flex flex-col gap-4">
+                            <div class="card-meta">
+                                <h3 class="font-bold">Nome da arte</h3>
+                                <div class="flex gap-4 justify-between">
+                                    <a class="flex gap-2 flex items-center" href="#">
+                                        <i class="ph-user"></i>
+                                        <span>Nathanael Bonfim</span>
+                                    </a>
+                                    <span class="flex gap-2 flex items-center">
+                                        <i class="ph-calendar"></i>
+                                        <span>10/08/2022</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-description">
+                                <span class="flex gap-2 flex items-center">
+                                    <i class="ph-clipboard-text-bold"></i>
+                                    <strong>Descrição/instruções</strong>
+                                </span>
+                                <p>
+                                    Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi Lorem pariatur
+                                    mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est
+                                    aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure elit
+                                    esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris cupidatat officia voluptate. Culpa
+                                    proident adipisicing id nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non
+                                    excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-3/6 flex flex-col gap-4">
+                        <div class="bg-white flex flex-col gap-4 p-4 border rounded">
+                            <form class="change-status flex items-end gap-4">
+                                <div class="grow">
+                                    <label for="status" class="text-slate-700">Alterar status</label>
+                                    <select name="status" required class="p-4 rounded border-slate-300 border-2 pr-2 w-full">
+                                        <option value="0">A fazer</option>
+                                        <option value="1">Em andamento</option>
+                                        <option value="2">Aguardando aprovação</option>
+                                        <option value="3">Aprovado</option>
+                                        <option value="3">Pago</option>
+                                    </select>
+                                </div>
+                                <button class="bg-sky-500 p-4 rounded hover:bg-sky-600 flex items-center justify-end gap-2 text-white h-min">
+                                    <i class="ph-floppy-disk-bold"></i>
+                                    Alterar
+                                </button>
+                            </form>
+
+                            <span class="bg-green-500 p-2 flex rounded-full text-white items-center justify-center" href="#">
+                                <span>Aprovado</span>
+                            </span>
+                        </div>
+
+                        <div class="bg-zinc-200 rounded p-4 flex flex-col gap-4 border-zinc-300 border">
+                            <span class="flex gap-2 flex items-center">
+                                <i class="ph-chats-bold"></i>
+                                <strong>Discussão</strong>
+                            </span>
+                            <div class="comments-container flex flex-col gap-4 h-96 max-h-96 overflow-y-auto">
+                                <div class="comment flex gap-4">
+                                    <div class="profile ">
+                                        <img src="https://avatars.dicebear.com/api/adventurer/your-custom-seedasdasdsssasaaa.svg" class="object-contain h-12 w-auto bg-white rounded-full border-sky-500 border-2">
+                                    </div>
+                                    <div class="content bg-white p-2 px-4 border shadow-sm rounded flex flex-col justify-end">
+                                        <p>Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.</p>
+                                        <span class="text-xs text-zinc-400 mr-auto">2022-10-20 10h52</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-row gap-2">
+                                <input type="text" name="comment" placeholder="Escreva aqui seu comentário..." value="" required class="p-4 rounded border-slate-300 border-2 grow">
+                                <button class="bg-sky-500 p-4 rounded hover:bg-sky-600 flex items-center justify-center gap-2 text-white rounded-full">
+                                    <i class="ph-paper-plane-tilt-bold"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+</html>
