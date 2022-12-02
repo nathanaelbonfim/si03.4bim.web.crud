@@ -1,0 +1,8 @@
+#!/usr/bin/php
+<?php
+
+
+class Migration extends Shell
+{
+
+}
