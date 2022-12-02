@@ -25,7 +25,7 @@ class Sample extends Shell {
         $clapEmoji = "\u{1F44F}";
         echo 'We have an option!' . $clapEmoji . PHP_EOL;
 
-        echo 'The value of the option is: ' . $this->getOption('o') . PHP_EOL;
+        echo 'The value of the option is: ' . $this->getOption('o', 'option') . PHP_EOL;
     }
 }
 
