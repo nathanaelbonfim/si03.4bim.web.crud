@@ -1,1 +1,5 @@
-.history
+# Ide files
+/.history/
+
+# Compiled files
+/config/.env
