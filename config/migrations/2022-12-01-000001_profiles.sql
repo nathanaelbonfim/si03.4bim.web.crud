@@ -1,4 +1,5 @@
-CREATE TABLE `artesao`.`profiles` (
+-- ::Up
+CREATE TABLE `profiles` (
     `ID` INT NOT NULL AUTO_INCREMENT,
     `USER_ID` INT NOT NULL,
     `NAME` VARCHAR(50) NOT NULL,
@@ -6,4 +7,7 @@ CREATE TABLE `artesao`.`profiles` (
     `CREATED` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
     `UPDATED` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
     PRIMARY KEY (`ID`)
-    );
+);
+
+-- ::Down
+DROP TABLE `profiles`;

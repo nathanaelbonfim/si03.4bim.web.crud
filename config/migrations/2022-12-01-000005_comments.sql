@@ -1,4 +1,5 @@
-CREATE TABLE `artesao`.`comments` (
+-- ::Up
+CREATE TABLE `comments` (
     `ID` INT NOT NULL AUTO_INCREMENT, 
     `CUSTOMER` VARCHAR(50) NOT NULL, 
     `CUSTOMER_ID` INT NOT NULL, 
@@ -10,4 +11,7 @@ CREATE TABLE `artesao`.`comments` (
     PRIMARY KEY (`ID`)
     FOREIGN KEY (CUSTOMER_ID) REFERENCES customers(ID)
     FOREIGN KEY (ARTWORK_ID) REFERENCES artworks(ID)
-    );
+);
+
+-- ::Down
+DROP TABLE `comments`;
