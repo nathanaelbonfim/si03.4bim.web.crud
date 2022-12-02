@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/phosphor-icons"></script>
+    </head>
+    <body>
+        <div class="min-w-screen min-h-screen bg-zinc-100 flex flex-col justify-center items-center">
+            <div class="max-h-max w-96 bg-slate-500 p-5 rounded shadow-md">
+                <h2 class="text-white font-bold text-xl mb-6">Acessar plataforma</h2>
+                <form class="flex flex-col gap-6" action="clients.html" method="POST">
+                    <div class="flex flex-col">
+                        <label for="email" class="text-white">Endereço de e-mail (*)</label>
+                        <input type="email" name="email" value="" placeholder="email@email.com" required class="p-4 rounded">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="password" class="text-white">Senha (*)</label>
+                        <input type="password" name="password" value="" placeholder="************" required class="p-4 rounded">
+                    </div>
+                    <button href="/login.html" class="bg-sky-500 p-4 rounded hover:bg-sky-600 flex items-center justify-center gap-2 pl-2 text-white">
+                        <i class="ph-sign-in"></i>
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

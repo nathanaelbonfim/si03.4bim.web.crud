@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Clientes</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/phosphor-icons"></script>
+    </head>
+    <body>
+        <div class="min-w-screen min-h-screen bg-zinc-100 flex flex-row">
+            <header class="">
+                <aside class="bg-slate-600 p-4 h-screen sticky top-0">
+                    <div class="text-white font-bold uppercase text-2xl pb-6 w-full text-center pr-2">Artesão</div>
+                    <nav class="w-64">
+                        <ul class="text-white flex flex-col gap-4">
+                            <li class="flex">
+                                <a href="/arts.html" class="border-sky-500 border-l-8 p-4 hover:bg-slate-700 bg-slate-700 w-full transition rounded flex gap-4">
+                                    <i class="ph-image mt-[.1rem]"></i>
+                                    Artes
+                                </a>
+                            </li>
+                            <li class="flex">
+                                <a href="/clients.html" class="p-4 hover:bg-slate-700 hover:border-sky-500 hover:border-l-8 w-full transition rounded flex gap-4">
+                                    <i class="ph-user mt-[.1rem]"></i>
+                                    Clientes
+                                </a>
+                            </li>
+                            <li class="flex">
+                                <a href="#" class="p-4 hover:bg-slate-700 hover:border-sky-500 hover:border-l-8 w-full transition rounded flex gap-4">
+                                    <i class="ph-wrench mt-[.1rem]"></i>
+                                    Configurações
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </aside>
+            </header>
+            <main class="p-4 grow">
+                <div class="font-medium mb-6 py-4 flex sticky top-0 left-0 bg-slate-100 w-full shadow-md -mx-4 px-4 ">
+                    <h2 class="text-3xl">Cadastrar arte</h2>
+                </div>
+                <div class="w-full">
+                    <form class="max-w-4xl flex flex-col gap-4">
+                        <div class="flex flex-col">
+                            <label for="name" class="text-slate-700">Nome da arte</label>
+                            <input type="text" name="name" value="" required class="p-4 rounded border-slate-300 border-2">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="description" class="text-slate-700" >Descrição/Instruções</label>
+                            <textarea name="description" rows="6" required class="p-4 rounded border-slate-300 border-2"></textarea>
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="client" class="text-slate-700">Cliente</label>
+                            <select name="client" required class="p-4 rounded border-slate-300 border-2 pr-2">
+                                <option value="1">Nathanael Bonfim</option>
+                                <option value="2">Nathanael</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="file" class="text-slate-700">Arquivo</label>
+                            <input type="file" name="file" required class="p-4 rounded border-slate-300 border-2 border-dotted">
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="status" class="text-slate-700">Status</label>
+                            <select name="status" required class="p-4 rounded border-slate-300 border-2 pr-2">
+                                <option value="0">A fazer</option>
+                                <option value="1">Em andamento</option>
+                                <option value="2">Aguardando aprovação</option>
+                                <option value="3">Aprovado</option>
+                                <option value="3">Pago</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="due_date" class="text-slate-700">Prazo</label>
+                            <input type="date" name="due_date" required class="p-4 rounded border-slate-300 border-2">
+                        </div>
+                        <button class="bg-sky-500 p-4 rounded hover:bg-sky-600 flex items-center justify-center gap-2 pl-2 text-white">
+                            <i class="ph-plus-bold"></i>
+                            Cadastrar
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </body>
+</html>
