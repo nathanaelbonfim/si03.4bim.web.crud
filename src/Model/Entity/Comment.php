@@ -1,8 +1,6 @@
 <?php
 
-use Artwork as GlobalArtwork;
-
-class Artwork
+class Comment
 {
     public int $id;
     public Customer $customer;
